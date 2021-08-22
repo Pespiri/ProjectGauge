@@ -1,0 +1,6 @@
+[submodule "lib/libraries/saab_can"]
+	path = lib/libraries/saab_can
+	url = https://github.com/Pespiri/saab_can.git
+[submodule "lib/libraries/Aruino_CAN_BUS_MCP2515"]
+	path = lib/libraries/Aruino_CAN_BUS_MCP2515
+	url = https://github.com/Pespiri/Aruino_CAN_BUS_MCP2515.git
