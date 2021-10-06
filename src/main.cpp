@@ -8,6 +8,7 @@
 #include "project_defs.h"
 
 #define MAIN_TAG "MAIN"
+#define PACKET_TIMEOUT_MS 5000
 
 unsigned long last_packet_received;
 
@@ -61,20 +62,19 @@ void loop() {
   if (saabcan::sc_read_frame(&frame) && frame.id == (uint32_t)GAUGE_CAN_ID) {
     uint16_t position = stepper_x27_driver::stepper_x27_calculate_position(frame.data[0], 2);
     stepper_x27_driver::stepper_x27_set_position(position);
-
-    char buffer[96];
-    snprintf(
-      buffer, 96, "DEBUG   %s: %s   id: 0x%04x   data: [0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x]",
-      MAIN_TAG, __func__, (unsigned int)frame.id,
-      frame.data[0], frame.data[1], frame.data[2], frame.data[3],
-      frame.data[4], frame.data[5], frame.data[6], frame.data[7]
-    );
-    Serial.println(buffer);
-
     last_packet_received = millis();
+
+    // char buffer[96];
+    // snprintf(
+    //   buffer, 96, "DEBUG   %s: %s   id: 0x%04x   data: [0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x]",
+    //   MAIN_TAG, __func__, (unsigned int)frame.id,
+    //   frame.data[0], frame.data[1], frame.data[2], frame.data[3],
+    //   frame.data[4], frame.data[5], frame.data[6], frame.data[7]
+    // );
+    // Serial.println(buffer);
   }
 
-  if (last_packet_received < millis() - 5000) {
+  if (last_packet_received < millis() - PACKET_TIMEOUT_MS) {
     stepper_x27_driver::stepper_x27_set_position(0);
   }
 
