@@ -24,8 +24,8 @@ void reset_pins();
 void test_simulation();
 
 void setup() {
-  reset_pins();
   Serial.begin(LOGGER_BAUDRATE);
+  reset_pins();
 
   SCCanHandleBase *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47KBPS);
   if (!saabcan::sc_install_handle(can_handle)) {
@@ -83,21 +83,15 @@ void loop() {
 }
 
 void reset_pins() {
-  const char digital_pins[14] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
-  const char analog_pins[6] = { A0, A1, A2, A3, A4, A5 };
+  const char pins[] = {
+    2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+    A0, A1, A2, A3, A4, A5
+  };
 
-  for (uint8_t i = 0; i < 14; i++) {
-    pinMode(digital_pins[i], OUTPUT);
-    delay(50);
-    digitalWrite(digital_pins[i], 0);
-    delay(50);
-  }
-
-  for (uint8_t i = 0; i < 6; i++) {
-    pinMode(analog_pins[i], OUTPUT);
-    delay(50);
-    analogWrite(analog_pins[i], 0);
-    delay(50);
+  for (uint8_t i = 0; i < sizeof(pins); i++) {
+    pinMode(pins[i], OUTPUT);
+    digitalWrite(pins[i], LOW);
+    delay(25);
   }
 }
 
