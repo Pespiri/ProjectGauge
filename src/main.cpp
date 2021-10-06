@@ -89,7 +89,7 @@ void reset_pins() {
   for (uint8_t i = 0; i < 14; i++) {
     pinMode(digital_pins[i], OUTPUT);
     delay(50);
-	  digitalWrite(digital_pins[i], 0);
+    digitalWrite(digital_pins[i], 0);
     delay(50);
   }
 
