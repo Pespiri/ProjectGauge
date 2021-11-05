@@ -1,25 +1,42 @@
 #include "stepper_x27_driver.h"
 
 namespace stepper_x27_driver {
-  AccelStepper *stepper_handle;
-  stepper_x27_cfg stepper_config;
+  typedef struct {
+    uint32_t max_range;
+    uint8_t multiplier;
+  } stepper_x27_range_cfg_t;
 
-  bool stepper_x27_init(stepper_x27_cfg config) {
-    if (!config.mode) {
+  AccelStepper *stepper_handle;
+
+  stepper_x27_cfg         stepper_cfg;
+  stepper_x27_range_cfg_t stepper_range_cfg;
+
+  bool stepper_x27_init(stepper_x27_cfg cfg) {
+    if (!cfg.mode) {
       return false;
     } else if (stepper_handle) {
       return true;
     }
 
-    memcpy(&stepper_config, &config, sizeof(stepper_x27_cfg));
+    memcpy(&stepper_cfg, &cfg, sizeof(stepper_x27_cfg));
+    stepper_range_cfg = {
+      .max_range = (!stepper_cfg.short_range ? stepper_cfg.full_range : stepper_cfg.short_range),
+      .multiplier = (stepper_cfg.mode == AccelStepper::HALF3WIRE || stepper_cfg.mode == AccelStepper::HALF4WIRE)
+        ? (uint8_t)2
+        : (uint8_t)1,
+    };
+
     stepper_handle = new AccelStepper(
-      stepper_config.mode,
-      stepper_config.pin1,
-      stepper_config.pin2,
-      stepper_config.pin3,
-      stepper_config.pin4,
+      stepper_cfg.mode,
+      stepper_cfg.pin1,
+      stepper_cfg.pin2,
+      stepper_cfg.pin3,
+      stepper_cfg.pin4,
       true
     );
+
+    stepper_handle->setSpeed(stepper_cfg.speed);
+    stepper_handle->setAcceleration(stepper_cfg.acceleration);
 
     stepper_x27_go_home();
     return true;
@@ -43,10 +60,12 @@ namespace stepper_x27_driver {
       return;
     }
 
-    uint16_t steps_remaining = abs(stepper_handle->targetPosition() - stepper_handle->currentPosition());
-    int16_t steps_taken = steps_remaining;
-    int16_t steps_to_go = steps_remaining - steps;
-    while (stepper_handle->run() && steps_taken > steps_to_go);
+    if (steps > stepper_range_cfg.max_range * stepper_range_cfg.multiplier) {
+      steps = stepper_range_cfg.max_range * stepper_range_cfg.multiplier;
+    }
+
+    int16_t steps_to_go = abs(stepper_handle->distanceToGo()) - steps;
+    while (stepper_handle->run() && abs(stepper_handle->distanceToGo()) >= steps_to_go);
   }
 
   void stepper_x27_set_position(uint16_t position) {
@@ -54,32 +73,25 @@ namespace stepper_x27_driver {
       return;
     }
 
-    uint8_t multiplier = stepper_config.mode == AccelStepper::HALF3WIRE || stepper_config.mode == AccelStepper::HALF4WIRE ? 2 : 1;
-    uint32_t max_range = (!stepper_config.short_range ? stepper_config.full_range : stepper_config.short_range);
-    max_range *= multiplier;
-    if (position > max_range) {
-      position = max_range;
+    uint32_t range = stepper_range_cfg.max_range * stepper_range_cfg.multiplier;
+    if (position > range) {
+      position = range;
     }
 
-    stepper_handle->moveTo(position + (stepper_config.start_offset * multiplier));
+    stepper_handle->moveTo(position + (stepper_cfg.start_offset * stepper_range_cfg.multiplier));
   }
 
-  uint16_t stepper_x27_calculate_position(uint8_t position, uint8_t filter) {
-    if (!stepper_handle) {
-      return 0;
-    }
-
-    static uint16_t latest_calc_pos = 0;
-    uint8_t multiplier = stepper_config.mode == AccelStepper::HALF3WIRE || stepper_config.mode == AccelStepper::HALF4WIRE ? 2 : 1;
-    uint16_t calc_pos = (!stepper_config.short_range ? stepper_config.full_range : stepper_config.short_range) * ((float)position / (0xFF));
-    calc_pos *= multiplier;
+  uint16_t stepper_x27_calculate_position(uint8_t position, uint8_t dead_zone) {
+    static uint16_t last_calc_pos = 0;
+    uint16_t calc_pos = stepper_range_cfg.max_range * ((float)position / (0xFF));
+    calc_pos *= stepper_range_cfg.multiplier;
 
     // filter out small movements
-    if (calc_pos - filter > latest_calc_pos || calc_pos + filter < latest_calc_pos) {
-      latest_calc_pos = calc_pos;
+    if (calc_pos - dead_zone > last_calc_pos || calc_pos + dead_zone < last_calc_pos) {
+      last_calc_pos = calc_pos;
     }
 
-    return latest_calc_pos;
+    return last_calc_pos;
   }
 
   void stepper_x27_go_home() {
@@ -88,10 +100,9 @@ namespace stepper_x27_driver {
     }
 
     // set speed and acceleration to slow and jam stepper counter-clockwise to stop
-    uint8_t multiplier = stepper_config.mode == AccelStepper::HALF3WIRE || stepper_config.mode == AccelStepper::HALF4WIRE ? 2 : 1;
-    stepper_handle->setSpeed(200);
-    stepper_handle->setAcceleration(50);
-    stepper_handle->setCurrentPosition((stepper_config.full_range + 10) * multiplier);
+    stepper_handle->setSpeed(175);
+    stepper_handle->setAcceleration(75);
+    stepper_handle->setCurrentPosition((stepper_cfg.full_range + 10) * stepper_range_cfg.multiplier);
     stepper_handle->runToNewPosition(0);
 
     // go to home position
@@ -99,7 +110,7 @@ namespace stepper_x27_driver {
     stepper_handle->runToPosition();
 
     // reset speed and acceleration
-    stepper_handle->setSpeed(stepper_config.speed);
-    stepper_handle->setAcceleration(stepper_config.acceleration);
+    stepper_handle->setSpeed(stepper_cfg.speed);
+    stepper_handle->setAcceleration(stepper_cfg.acceleration);
   }
 }; // namespace stepper_x27_driver

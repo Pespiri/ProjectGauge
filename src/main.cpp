@@ -21,7 +21,7 @@ void loop();
 void reset_pins();
 
 /** @brief  Test code for running the gauge */
-void test_simulation();
+void gauge_position_simulation_test();
 
 void setup() {
   Serial.begin(LOGGER_BAUDRATE);
@@ -30,7 +30,7 @@ void setup() {
   SCCanHandleBase *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47KBPS);
   if (!saabcan::sc_install_handle(can_handle)) {
     char buffer[64];
-    snprintf(buffer, 64, "ERROR   %s: %s Failed to set CAN handle", MAIN_TAG, __func__);
+    snprintf(buffer, 64, "ERROR   %s: %s failed to set CAN handle", MAIN_TAG, __func__);
     Serial.println(buffer);
     if (can_handle) {
       delete can_handle;
@@ -38,11 +38,10 @@ void setup() {
   } else {
     uint32_t ids[1];
     ids[0] = (unsigned long)GAUGE_CAN_ID;
-    sc_can_frame_id_list_t id_list = { .size = 1, .list = ids };
-    saabcan::sc_update_frame_ids(id_list);
+    saabcan::sc_update_frame_ids({ .size = sizeof(ids) / sizeof(*ids), .list = ids });
   }
 
-  stepper_x27_driver::stepper_x27_cfg config;
+  stepper_x27_driver::stepper_x27_cfg config = {};
   config.mode = AccelStepper::HALF4WIRE;
   config.pin1 = GAUGE_PIN_1;
   config.pin2 = GAUGE_PIN_2;
@@ -59,10 +58,12 @@ void setup() {
 
 void loop() {
   saab_frame_t frame;
+  unsigned long time = millis();
+
   if (saabcan::sc_read_frame(&frame) && frame.id == (uint32_t)GAUGE_CAN_ID) {
     uint16_t position = stepper_x27_driver::stepper_x27_calculate_position(frame.data[0], 2);
     stepper_x27_driver::stepper_x27_set_position(position);
-    last_packet_received = millis();
+    last_packet_received = time;
 
     // char buffer[96];
     // snprintf(
@@ -74,12 +75,12 @@ void loop() {
     // Serial.println(buffer);
   }
 
-  if (last_packet_received < millis() - PACKET_TIMEOUT_MS) {
+  if (last_packet_received < time - PACKET_TIMEOUT_MS) {
     stepper_x27_driver::stepper_x27_set_position(0);
   }
 
-  // test_simulation();
-  stepper_x27_driver::stepper_x27_run_steps(25);
+  // gauge_position_simulation_test();
+  stepper_x27_driver::stepper_x27_run_steps(3);
 }
 
 void reset_pins() {
@@ -95,11 +96,14 @@ void reset_pins() {
   }
 }
 
-void test_simulation() {
+void gauge_position_simulation_test() {
   static bool flip_flop;
+  static uint8_t tracker = 0;
 
-  uint16_t pos = flip_flop ? 0xFF : 0;
-  flip_flop = !flip_flop;
-  stepper_x27_driver::stepper_x27_set_position(pos);
-  stepper_x27_driver::stepper_x27_run_steps(0xFF);
+  tracker = flip_flop ? tracker - 5 : tracker + 5;
+  if (tracker == 0 || tracker == 255) {
+    flip_flop = !flip_flop;
+  }
+
+  stepper_x27_driver::stepper_x27_set_position(flip_flop ? 0 : (uint16_t)~0);
 }
