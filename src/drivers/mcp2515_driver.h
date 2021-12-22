@@ -1,7 +1,7 @@
 #ifndef MCP2515_DRIVER_H
 #define MCP2515_DRIVER_H
 
-#include <Aruino_CAN_BUS_MCP2515/src/mcp_can.h>
+#include <Aruino_CAN_BUS_MCP2515/mcp_can.h>
 #include <stdint.h>
 #include <saab_can/data/saab_frame.h>
 #include <saab_can/interfaces/can_handle_base.h>

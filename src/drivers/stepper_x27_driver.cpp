@@ -21,9 +21,7 @@ namespace stepper_x27_driver {
     memcpy(&stepper_cfg, &cfg, sizeof(stepper_x27_cfg));
     stepper_range_cfg = {
       .max_range = (!stepper_cfg.short_range ? stepper_cfg.full_range : stepper_cfg.short_range),
-      .multiplier = (stepper_cfg.mode == AccelStepper::HALF3WIRE || stepper_cfg.mode == AccelStepper::HALF4WIRE)
-        ? (uint8_t)2
-        : (uint8_t)1,
+      .multiplier = (uint8_t)(1 + (stepper_cfg.mode == AccelStepper::HALF3WIRE || stepper_cfg.mode == AccelStepper::HALF4WIRE)),
     };
 
     stepper_handle = new AccelStepper(
@@ -60,7 +58,7 @@ namespace stepper_x27_driver {
       return;
     }
 
-    if (steps > stepper_range_cfg.max_range * stepper_range_cfg.multiplier) {
+    if (steps > (stepper_range_cfg.max_range * stepper_range_cfg.multiplier)) {
       steps = stepper_range_cfg.max_range * stepper_range_cfg.multiplier;
     }
 
@@ -87,7 +85,7 @@ namespace stepper_x27_driver {
     calc_pos *= stepper_range_cfg.multiplier;
 
     // filter out small movements
-    if (calc_pos - dead_zone > last_calc_pos || calc_pos + dead_zone < last_calc_pos) {
+    if ((calc_pos - dead_zone) > last_calc_pos || (calc_pos + dead_zone) < last_calc_pos) {
       last_calc_pos = calc_pos;
     }
 

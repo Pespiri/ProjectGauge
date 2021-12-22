@@ -30,14 +30,13 @@ void setup() {
   SCCanHandleBase *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47KBPS);
   if (!saabcan::sc_install_handle(can_handle)) {
     char buffer[64];
-    snprintf(buffer, 64, "ERROR   %s: %s failed to set CAN handle", MAIN_TAG, __func__);
+    snprintf(buffer, sizeof(buffer), "ERROR   %s: %s failed to set CAN handle", MAIN_TAG, __func__);
     Serial.println(buffer);
     if (can_handle) {
       delete can_handle;
     }
   } else {
-    uint32_t ids[1];
-    ids[0] = (unsigned long)GAUGE_CAN_ID;
+    uint32_t ids[] = { (unsigned long)GAUGE_CAN_ID };
     saabcan::sc_update_frame_ids({ .size = sizeof(ids) / sizeof(*ids), .list = ids });
   }
 
@@ -67,7 +66,7 @@ void loop() {
 
     // char buffer[96];
     // snprintf(
-    //   buffer, 96, "DEBUG   %s: %s   id: 0x%04x   data: [0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x]",
+    //   buffer, sizeof(buffer), "DEBUG   %s: %s   id: 0x%04x   data: [0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x]",
     //   MAIN_TAG, __func__, (unsigned int)frame.id,
     //   frame.data[0], frame.data[1], frame.data[2], frame.data[3],
     //   frame.data[4], frame.data[5], frame.data[6], frame.data[7]
@@ -76,6 +75,7 @@ void loop() {
   }
 
   if (last_packet_received < time - PACKET_TIMEOUT_MS) {
+    // packet timeout, return home
     stepper_x27_driver::stepper_x27_set_position(0);
   }
 

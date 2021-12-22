@@ -32,8 +32,8 @@ bool Mcp2515Driver::update_frame_ids(sc_can_frame_id_list_t id_list) {
   // build filter
   unsigned long mask = ~0, filter = ~0;
   for (size_t i = 0; i < id_list.size; i++) {
-    mask = mask & (unsigned long)id_list.list[i];
-    filter = filter & (unsigned long)id_list.list[i];
+    mask &= (unsigned long)id_list.list[i];
+    filter &= (unsigned long)id_list.list[i];
   }
 
   if (filter == id_filter && mask == id_mask) {
