@@ -1,5 +1,8 @@
 #include "stepper_x27_driver.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 namespace stepper_x27_driver {
   typedef struct {
     uint32_t max_range;
@@ -12,11 +15,8 @@ namespace stepper_x27_driver {
   stepper_x27_range_cfg_t stepper_range_cfg;
 
   bool stepper_x27_init(stepper_x27_cfg cfg) {
-    if (!cfg.mode) {
-      return false;
-    } else if (stepper_handle) {
-      return true;
-    }
+    if (!cfg.mode)      return false;
+    if (stepper_handle) return true;
 
     memcpy(&stepper_cfg, &cfg, sizeof(stepper_x27_cfg));
     stepper_range_cfg = {
@@ -41,22 +41,18 @@ namespace stepper_x27_driver {
   }
 
   bool stepper_x27_deinit() {
-    if (!stepper_handle) {
-      return true;
-    }
+    if (!stepper_handle) return true;
 
     stepper_x27_go_home();
     stepper_handle->disableOutputs();
-    delete stepper_handle;
+    operator delete (stepper_handle);
     stepper_handle = nullptr;
 
     return true;
   }
 
   void stepper_x27_run_steps(uint16_t steps) {
-    if (!stepper_handle) {
-      return;
-    }
+    if (!stepper_handle) return;
 
     if (steps > (stepper_range_cfg.max_range * stepper_range_cfg.multiplier)) {
       steps = stepper_range_cfg.max_range * stepper_range_cfg.multiplier;
@@ -66,22 +62,20 @@ namespace stepper_x27_driver {
     while (stepper_handle->run() && abs(stepper_handle->distanceToGo()) >= steps_to_go);
   }
 
-  void stepper_x27_set_position(uint16_t position) {
-    if (!stepper_handle) {
-      return;
-    }
+  void stepper_x27_set_position(uint16_t pos) {
+    if (!stepper_handle) return;
 
     uint32_t range = stepper_range_cfg.max_range * stepper_range_cfg.multiplier;
-    if (position > range) {
-      position = range;
+    if (pos > range) {
+      pos = range;
     }
 
-    stepper_handle->moveTo(position + (stepper_cfg.start_offset * stepper_range_cfg.multiplier));
+    stepper_handle->moveTo(pos + (stepper_cfg.start_offset * stepper_range_cfg.multiplier));
   }
 
-  uint16_t stepper_x27_calculate_position(uint8_t position, uint8_t dead_zone) {
+  uint16_t stepper_x27_calculate_position(uint8_t pos, uint8_t dead_zone) {
     static uint16_t last_calc_pos = 0;
-    uint16_t calc_pos = stepper_range_cfg.max_range * ((float)position / (0xFF));
+    uint16_t calc_pos = stepper_range_cfg.max_range * ((float)pos / (0xFF));
     calc_pos *= stepper_range_cfg.multiplier;
 
     // filter out small movements
@@ -93,9 +87,7 @@ namespace stepper_x27_driver {
   }
 
   void stepper_x27_go_home() {
-    if (!stepper_handle) {
-      return;
-    }
+    if (!stepper_handle) return;
 
     // set speed and acceleration to slow and jam stepper counter-clockwise to stop
     stepper_handle->setSpeed(175);

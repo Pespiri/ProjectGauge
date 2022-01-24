@@ -27,7 +27,7 @@ void setup() {
   Serial.begin(LOGGER_BAUDRATE);
   reset_pins();
 
-  SCCanHandleBase *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47KBPS);
+  SCCanHandleBase *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47K619BPS);
   if (!saabcan::sc_install_handle(can_handle)) {
     char buffer[64];
     snprintf(buffer, sizeof(buffer), "ERROR   %s: %s failed to set CAN handle", MAIN_TAG, __func__);
@@ -56,7 +56,7 @@ void setup() {
 }
 
 void loop() {
-  saab_frame_t frame;
+  saab_frame_t frame = {};
   unsigned long time = millis();
 
   if (saabcan::sc_read_frame(&frame) && frame.id == (uint32_t)GAUGE_CAN_ID) {
@@ -74,7 +74,7 @@ void loop() {
     // Serial.println(buffer);
   }
 
-  if (last_packet_received < time - PACKET_TIMEOUT_MS) {
+  if (last_packet_received < (time - PACKET_TIMEOUT_MS)) {
     // packet timeout, return home
     stepper_x27_driver::stepper_x27_set_position(0);
   }

@@ -5,24 +5,33 @@
 #include <stdint.h>
 #include <saab_can/data/saab_frame.h>
 #include <saab_can/interfaces/can_handle_base.h>
-#include <saab_can/saab_can.h>
 
 class Mcp2515Driver : public SCCanHandleBase {
   private:
-    MCP_CAN *mcp_handle = nullptr;
+    typedef struct {
+      uint8_t cs_pin;
+      uint8_t can_speed;
+    } mcp_can_pin_cfg_t;
 
-    bool is_installed = false;
+    typedef struct {
+      unsigned long id_filter;
+      unsigned long id_mask;
+    } mcp_can_filter_t;
 
-    uint8_t _cs_pin;
-    uint8_t _can_speed;
+    MCP_CAN *mcp_handle;
 
-    unsigned long id_filter = 0;
-    unsigned long id_mask = 0;
+    bool is_installed;
+
+    mcp_can_pin_cfg_t mcp_can_pin_cfg;
+    mcp_can_filter_t mcp_can_filter;
 
   public:
     Mcp2515Driver(uint8_t cs_pin, uint8_t can_speed) {
-      _cs_pin = cs_pin;
-      _can_speed = can_speed;
+      mcp_can_pin_cfg = { .cs_pin = cs_pin, .can_speed = can_speed };
+
+      mcp_handle = nullptr;
+      is_installed = false;
+      mcp_can_filter = {};
     }
 
     /** @brief  Install CAN bus driver */

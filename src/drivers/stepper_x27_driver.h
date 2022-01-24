@@ -3,13 +3,13 @@
 
 #include <AccelStepper.h>
 #include <stdint.h>
-#include <stdlib.h>
 
 #define STEPPER_X27_DRIVER_TAG "STEPPER_X27"
 
 namespace stepper_x27_driver {
   typedef struct {
-    uint8_t mode;           // Stepper wire mode
+    AccelStepper::MotorInterfaceType mode;  // Stepper wire mode
+
     uint8_t pin1;           // Pin 1
     uint8_t pin2;           // Pin 2
     uint8_t pin3;           // Pin 3
@@ -35,16 +35,16 @@ namespace stepper_x27_driver {
   /** @brief  Run for a set amount of steps */
   void stepper_x27_run_steps(uint16_t steps);
   /** @brief  Set new stepper position */
-  void stepper_x27_set_position(uint16_t position);
+  void stepper_x27_set_position(uint16_t pos);
   /**
    * @brief  Calculate new position based on stepper limits
    *
-   * @param[in]   position    requested position (0 - 255)
+   * @param[in]   pos         requested position (0 - 255)
    * @param[in]   dead_zone   steps to filter
    *
    * @return              new position based on range and offset
    */
-  uint16_t stepper_x27_calculate_position(uint8_t position, uint8_t dead_zone);
+  uint16_t stepper_x27_calculate_position(uint8_t pos, uint8_t dead_zone);
   /** @brief  Drive stepper to home position */
   void stepper_x27_go_home();
 }; // namespace stepper_x27_driver

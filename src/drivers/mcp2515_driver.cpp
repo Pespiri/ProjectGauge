@@ -1,16 +1,13 @@
 #include "mcp2515_driver.h"
 
 bool Mcp2515Driver::install() {
-  if (mcp_handle || is_installed) {
-    return true;
-  }
+  if (mcp_handle || is_installed) return true;
 
-  mcp_handle = new MCP_CAN(_cs_pin);
-  if (mcp_handle && mcp_handle->begin(_can_speed) == CAN_OK) {
+  mcp_handle = new MCP_CAN(mcp_can_pin_cfg.cs_pin);
+  if (mcp_handle && mcp_handle->begin(mcp_can_pin_cfg.can_speed) == CAN_OK) {
     is_installed = true;
     return true;
   }
-
   return false;
 }
 
@@ -25,9 +22,7 @@ bool Mcp2515Driver::uninstall() {
 }
 
 bool Mcp2515Driver::update_frame_ids(sc_can_frame_id_list_t id_list) {
-  if (!mcp_handle || !is_installed) {
-    return false;
-  }
+  if (!mcp_handle || !is_installed) return false;
 
   // build filter
   unsigned long mask = ~0, filter = ~0;
@@ -36,26 +31,31 @@ bool Mcp2515Driver::update_frame_ids(sc_can_frame_id_list_t id_list) {
     filter &= (unsigned long)id_list.list[i];
   }
 
-  if (filter == id_filter && mask == id_mask) {
+  if (filter == mcp_can_filter.id_filter && mask == mcp_can_filter.id_mask) {
     // filter haven't changed since last time
     return true;
+  } else {
+    mcp_can_filter = { .id_filter = filter, .id_mask = mask };
   }
 
-  id_mask = mask, id_filter = filter;
-  bool is_all_good = true;
-  for (uint8_t i = 0; i < 6; i++) { // set all 6 filters
-    if (mcp_handle->init_Filt(i, false, id_filter) != MCP2515_OK || mcp_handle->init_Mask(i, false, id_mask) != MCP2515_OK) {
-      is_all_good = false;
+  bool did_succeed = true;
+  for (uint8_t i = 0; i < 6; i++) { // set all (6) filters
+    if (mcp_handle->init_Filt(i, false, filter) != MCP2515_OK) {
+      did_succeed = false;
     }
   }
 
-  return is_all_good;
+  for (uint8_t i = 0; i < 2; i++) { // set all (2) masks
+    if (mcp_handle->init_Mask(i, false, mask) != MCP2515_OK) {
+      did_succeed = false;
+    }
+  }
+
+  return did_succeed;
 }
 
 bool Mcp2515Driver::read(saab_frame_t *frame) {
-  if (!mcp_handle || !is_installed) {
-    return false;
-  }
+  if (!mcp_handle || !is_installed) return false;
 
   bool result = false;
   if (mcp_handle->checkReceive()) {
@@ -71,7 +71,6 @@ bool Mcp2515Driver::read(saab_frame_t *frame) {
     result = mcp_handle->readMsgBufID(&id, &frame->length, frame->data) == CAN_OK;
     frame->id = id;
   }
-
   return result;
 }
 
