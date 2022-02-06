@@ -27,7 +27,7 @@ void setup() {
   Serial.begin(LOGGER_BAUDRATE);
   reset_pins();
 
-  SCCanHandleBase *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47K619BPS);
+  SCCanHandleObject *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47K619BPS);
   if (!saabcan::sc_install_handle(can_handle)) {
     char buffer[64];
     snprintf(buffer, sizeof(buffer), "ERROR   %s: %s failed to set CAN handle", MAIN_TAG, __func__);

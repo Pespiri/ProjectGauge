@@ -4,9 +4,9 @@
 #include <Aruino_CAN_BUS_MCP2515/mcp_can.h>
 #include <stdint.h>
 #include <saab_can/data/saab_frame.h>
-#include <saab_can/interfaces/can_handle_base.h>
+#include <saab_can/interfaces/can_handle_object.h>
 
-class Mcp2515Driver : public SCCanHandleBase {
+class Mcp2515Driver : public SCCanHandleObject {
   private:
     typedef struct {
       uint8_t cs_pin;
