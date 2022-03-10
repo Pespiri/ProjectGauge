@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <saab_can/saab_can.h>
+#include <saab_can/services/can_reader_service.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -12,10 +13,13 @@
 
 unsigned long last_packet_received;
 
-/** @brief  Setup ATMEGA328P */
+/** @brief  Setup */
 void setup();
-/** @brief  Main task loop */
+/** @brief  Main loop */
 void loop();
+
+/** @brief  Handle frame callback */
+void handle_frame(saab_frame_t frame);
 
 /** @brief  Reset Arduino analog and digital pins */
 void reset_pins();
@@ -35,10 +39,10 @@ void setup() {
     if (can_handle) {
       delete can_handle;
     }
-  } else {
-    uint32_t ids[] = { (unsigned long)GAUGE_CAN_ID };
-    saabcan::sc_update_frame_ids({ .size = sizeof(ids) / sizeof(*ids), .list = ids });
   }
+
+  sc_can_reader_subscription_t sub1 = { .id = "SUB_1", .frame_id = GAUGE_CAN_ID, .cb = handle_frame };
+  saabcan::sc_can_reader_subscribe(sub1);
 
   stepper_x27_driver::stepper_x27_cfg config = {};
   config.mode = AccelStepper::HALF4WIRE;
@@ -56,31 +60,29 @@ void setup() {
 }
 
 void loop() {
-  saab_frame_t frame = {};
-  unsigned long time = millis();
-
-  if (saabcan::sc_read_frame(&frame) && frame.id == (uint32_t)GAUGE_CAN_ID) {
-    uint16_t position = stepper_x27_driver::stepper_x27_calculate_position(frame.data[0], 2);
-    stepper_x27_driver::stepper_x27_set_position(position);
-    last_packet_received = time;
-
-    // char buffer[96];
-    // snprintf(
-    //   buffer, sizeof(buffer), "DEBUG   %s: %s   id: 0x%04x   data: [0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x]",
-    //   MAIN_TAG, __func__, (unsigned int)frame.id,
-    //   frame.data[0], frame.data[1], frame.data[2], frame.data[3],
-    //   frame.data[4], frame.data[5], frame.data[6], frame.data[7]
-    // );
-    // Serial.println(buffer);
-  }
-
-  if (last_packet_received < (time - PACKET_TIMEOUT_MS)) {
+  saabcan::sc_can_reader_advance();
+  if (last_packet_received < (millis() - PACKET_TIMEOUT_MS)) {
     // packet timeout, return home
     stepper_x27_driver::stepper_x27_set_position(0);
   }
 
   // gauge_position_simulation_test();
   stepper_x27_driver::stepper_x27_run_steps(3);
+}
+
+void handle_frame(saab_frame_t frame) {
+  // char buffer[80];
+  // snprintf(
+  //   buffer, sizeof(buffer), "DEBUG   %s: %s   id: 0x%03x   data: [%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x]",
+  //   MAIN_TAG, __func__, (unsigned int)frame.id,
+  //   frame.data[0], frame.data[1], frame.data[2], frame.data[3],
+  //   frame.data[4], frame.data[5], frame.data[6], frame.data[7]
+  // );
+  // Serial.println(buffer);
+
+  uint16_t position = stepper_x27_driver::stepper_x27_calculate_position(frame.data[0], 2);
+  stepper_x27_driver::stepper_x27_set_position(position);
+  last_packet_received = millis();
 }
 
 void reset_pins() {
