@@ -20,12 +20,17 @@ void loop();
 
 /** @brief  Handle frame callback */
 void handle_frame(saab_frame_t frame);
+/** @brief  Handle gauge value frame callback */
+void handle_gauge_value_frame(saab_frame_t frame);
 
 /** @brief  Reset Arduino analog and digital pins */
 void reset_pins();
 
 /** @brief  Test code for running the gauge */
 void gauge_position_simulation_test();
+
+/** @brief  Print saab_frame to console */
+void print_frame(saab_frame_t frame, const char *func_name);
 
 void setup() {
   Serial.begin(LOGGER_BAUDRATE);
@@ -41,7 +46,7 @@ void setup() {
     }
   }
 
-  sc_can_reader_subscription_t sub1 = { .id = "SUB_1", .frame_id = GAUGE_CAN_ID, .cb = handle_frame };
+  sc_can_reader_subscription_t sub1 = { .id = "SUB_1", .frame_id = GAUGE_CAN_ID, .cb = handle_gauge_value_frame };
   saabcan::sc_can_reader_subscribe(sub1);
 
   stepper_x27_driver::stepper_x27_cfg config = {};
@@ -71,15 +76,11 @@ void loop() {
 }
 
 void handle_frame(saab_frame_t frame) {
-  // char buffer[80];
-  // snprintf(
-  //   buffer, sizeof(buffer), "DEBUG   %s: %s   id: 0x%03x   data: [%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x]",
-  //   MAIN_TAG, __func__, (unsigned int)frame.id,
-  //   frame.data[0], frame.data[1], frame.data[2], frame.data[3],
-  //   frame.data[4], frame.data[5], frame.data[6], frame.data[7]
-  // );
-  // Serial.println(buffer);
+  print_frame(frame, __func__);
+}
 
+void handle_gauge_value_frame(saab_frame_t frame) {
+  // print_frame(frame, __func__);
   uint16_t position = stepper_x27_driver::stepper_x27_calculate_position(frame.data[0], 2);
   stepper_x27_driver::stepper_x27_set_position(position);
   last_packet_received = millis();
@@ -108,4 +109,24 @@ void gauge_position_simulation_test() {
   }
 
   stepper_x27_driver::stepper_x27_set_position(flip_flop ? 0 : (uint16_t)~0);
+}
+
+void print_frame(saab_frame_t frame, const char *name) {
+  if (!name) {
+    name = "_";
+  }
+
+  char time_str[10], buffer_str[96];
+  double time = millis() / 1000.0F;
+  dtostrf(time, sizeof(time_str) - 3, 2, time_str);
+
+  snprintf(
+    buffer_str, sizeof(buffer_str),
+    "DEBUG   %s: %s %10ss   id 0x%03x   data [%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x]\n",
+    MAIN_TAG, name, time_str, (uint16_t)frame.id,
+    frame.data[0], frame.data[1], frame.data[2], frame.data[3],
+    frame.data[4], frame.data[5], frame.data[6], frame.data[7]
+  );
+
+  Serial.print(buffer_str);
 }
