@@ -11,11 +11,11 @@ namespace stepper_x27_driver {
 
   AccelStepper *stepper_handle;
 
-  stepper_x27_cfg         stepper_cfg;
+  stepper_x27_cfg stepper_cfg;
   stepper_x27_range_cfg_t stepper_range_cfg;
 
   bool stepper_x27_init(stepper_x27_cfg cfg) {
-    if (!cfg.mode)      return false;
+    if (!cfg.mode) return false;
     if (stepper_handle) return true;
 
     memcpy(&stepper_cfg, &cfg, sizeof(stepper_x27_cfg));
@@ -30,8 +30,7 @@ namespace stepper_x27_driver {
       stepper_cfg.pin2,
       stepper_cfg.pin3,
       stepper_cfg.pin4,
-      true
-    );
+      true);
 
     stepper_handle->setSpeed(stepper_cfg.speed);
     stepper_handle->setAcceleration(stepper_cfg.acceleration);
@@ -45,7 +44,7 @@ namespace stepper_x27_driver {
 
     stepper_x27_go_home();
     stepper_handle->disableOutputs();
-    operator delete (stepper_handle);
+    operator delete(stepper_handle);
     stepper_handle = nullptr;
 
     return true;
@@ -59,7 +58,9 @@ namespace stepper_x27_driver {
     }
 
     int16_t steps_to_go = abs(stepper_handle->distanceToGo()) - steps;
-    while (stepper_handle->run() && abs(stepper_handle->distanceToGo()) >= steps_to_go);
+    while (stepper_handle->run() && abs(stepper_handle->distanceToGo()) >= steps_to_go) {
+      continue;
+    }
   }
 
   void stepper_x27_set_position(uint16_t pos) {

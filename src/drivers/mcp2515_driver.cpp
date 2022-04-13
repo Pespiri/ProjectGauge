@@ -35,7 +35,7 @@ bool Mcp2515Driver::update_frame_ids(sc_can_frame_id_list_t id_list) {
     // filter haven't changed since last time
     return true;
   } else {
-    mcp_can_filter = { .id_filter = filter, .id_mask = mask };
+    mcp_can_filter = {.id_filter = filter, .id_mask = mask};
   }
 
   bool did_succeed = true;
@@ -76,6 +76,6 @@ bool Mcp2515Driver::read(saab_frame_t *frame) {
 
 bool Mcp2515Driver::write(saab_frame_t frame) {
   return (mcp_handle && is_installed)
-    ? mcp_handle->sendMsgBuf(frame.id, frame.extd, frame.length, frame.data) == CAN_OK
-    : false;
+           ? mcp_handle->sendMsgBuf(frame.id, frame.extd, frame.length, frame.data) == CAN_OK
+           : false;
 }

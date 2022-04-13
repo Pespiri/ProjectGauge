@@ -1,14 +1,14 @@
+#include "drivers/mcp2515_driver.h"
+#include "drivers/stepper_x27_driver.h"
+#include "project_defs.h"
+
 #include <Arduino.h>
 #include <saab_can/saab_can.h>
 #include <saab_can/services/can_reader_service.h>
 #include <stdint.h>
 #include <stdio.h>
 
-#include "drivers/mcp2515_driver.h"
-#include "drivers/stepper_x27_driver.h"
-#include "project_defs.h"
-
-#define MAIN_TAG "MAIN"
+#define MAIN_TAG          "MAIN"
 #define PACKET_TIMEOUT_MS 5000
 
 unsigned long last_packet_received;
@@ -46,7 +46,7 @@ void setup() {
     }
   }
 
-  sc_can_reader_subscription_t sub1 = { .id = "SUB_1", .frame_id = GAUGE_CAN_ID, .cb = handle_gauge_value_frame };
+  sc_can_reader_subscription_t sub1 = {.id = "SUB_1", .frame_id = GAUGE_CAN_ID, .cb = handle_gauge_value_frame};
   saabcan::sc_can_reader_subscribe(sub1);
 
   stepper_x27_driver::stepper_x27_cfg config = {};
@@ -89,7 +89,7 @@ void handle_gauge_value_frame(saab_frame_t frame) {
 void reset_pins() {
   const char pins[] = {
     2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
-    A0, A1, A2, A3, A4, A5
+    A0, A1, A2, A3, A4, A5,
   };
 
   for (uint8_t i = 0; i < sizeof(pins); i++) {
@@ -125,8 +125,7 @@ void print_frame(saab_frame_t frame, const char *name) {
     "DEBUG   %s: %s %10ss   id 0x%03x   data [%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x]\n",
     MAIN_TAG, name, time_str, (uint16_t)frame.id,
     frame.data[0], frame.data[1], frame.data[2], frame.data[3],
-    frame.data[4], frame.data[5], frame.data[6], frame.data[7]
-  );
+    frame.data[4], frame.data[5], frame.data[6], frame.data[7]);
 
   Serial.print(buffer_str);
 }

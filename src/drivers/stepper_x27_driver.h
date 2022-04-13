@@ -8,19 +8,19 @@
 
 namespace stepper_x27_driver {
   typedef struct {
-    AccelStepper::MotorInterfaceType mode;  // Stepper wire mode
+    AccelStepper::MotorInterfaceType mode; // Stepper wire mode
 
-    uint8_t pin1;           // Pin 1
-    uint8_t pin2;           // Pin 2
-    uint8_t pin3;           // Pin 3
-    uint8_t pin4;           // Pin 4
+    uint8_t pin1; // Pin 1
+    uint8_t pin2; // Pin 2
+    uint8_t pin3; // Pin 3
+    uint8_t pin4; // Pin 4
 
-    uint32_t start_offset;  // Stepper start offset
-    uint32_t full_range;    // Stepper full range (angle)
-    uint32_t short_range;   // Stepper main range (angle) (0 for full range)
-    uint32_t steps;         // Stepper total steps
-    uint32_t speed;         // Stepper max speed
-    uint32_t acceleration;  // Stepper acceleration
+    uint32_t start_offset; // Stepper start offset
+    uint32_t full_range;   // Stepper full range (angle)
+    uint32_t short_range;  // Stepper main range (angle) (0 for full range)
+    uint32_t steps;        // Stepper total steps
+    uint32_t speed;        // Stepper max speed
+    uint32_t acceleration; // Stepper acceleration
   } stepper_x27_cfg;
 
   /**
