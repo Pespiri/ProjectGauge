@@ -1,0 +1,35 @@
+Standard: Latest
+BasedOnStyle: LLVM
+
+# indentation
+ColumnLimit: 0
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+# indentation and line wrapping
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 2
+IndentCaseLabels: true
+NamespaceIndentation: All
+
+# alignment
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveBitFields: Consecutive
+AlignConsecutiveMacros: AcrossEmptyLines
+AlignTrailingComments: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+
+# spacing
+BitFieldColonSpacing: Both
+ReflowComments: true
+
+# braces and line breaks
+BreakBeforeBraces: Attach
+EmptyLineBeforeAccessModifier: LogicalBlock
+
+# other
+FixNamespaceComments: true
+IncludeBlocks: Regroup
+MaxEmptyLinesToKeep: 1
