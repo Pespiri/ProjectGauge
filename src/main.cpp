@@ -23,9 +23,6 @@ void handle_frame(saab_frame_t frame);
 /** @brief  Handle gauge value frame callback */
 void handle_gauge_value_frame(saab_frame_t frame);
 
-/** @brief  Reset Arduino analog and digital pins */
-void reset_pins();
-
 /** @brief  Test code for running the gauge */
 void gauge_position_simulation_test();
 
@@ -34,7 +31,6 @@ void print_frame(saab_frame_t frame, const char *func_name);
 
 void setup() {
   Serial.begin(LOGGER_BAUDRATE);
-  reset_pins();
 
   SCCanHandleObject *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47K619BPS);
   if (!saabcan::sc_install_handle(can_handle)) {
@@ -84,19 +80,6 @@ void handle_gauge_value_frame(saab_frame_t frame) {
   uint16_t position = stepper_x27_driver::stepper_x27_calculate_position(frame.data[0], 2);
   stepper_x27_driver::stepper_x27_set_position(position);
   last_packet_received = millis();
-}
-
-void reset_pins() {
-  const char pins[] = {
-    2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
-    A0, A1, A2, A3, A4, A5,
-  };
-
-  for (uint8_t i = 0; i < sizeof(pins); i++) {
-    pinMode(pins[i], OUTPUT);
-    digitalWrite(pins[i], LOW);
-    delay(25);
-  }
 }
 
 void gauge_position_simulation_test() {
