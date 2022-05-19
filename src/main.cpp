@@ -32,10 +32,12 @@ void print_frame(saab_frame_t frame, const char *func_name);
 void setup() {
   Serial.begin(LOGGER_BAUDRATE);
 
-  SCCanHandleObject *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47K619BPS);
-  if (!saabcan::sc_install_handle(can_handle)) {
+  Mcp2515Driver *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47K619BPS);
+  can_handle->initialize();
+  sc_err_t err = saabcan::sc_assign_can_handle(can_handle);
+  if (err != SC_OK) {
     char buffer[64];
-    snprintf(buffer, sizeof(buffer), "ERROR   %s: %s failed to set CAN handle", MAIN_TAG, __func__);
+    snprintf(buffer, sizeof(buffer), "ERROR   %s: %s failed to assign CAN handle [code %i]", MAIN_TAG, __func__, err);
     Serial.println(buffer);
     if (can_handle) {
       delete can_handle;

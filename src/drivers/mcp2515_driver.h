@@ -34,10 +34,13 @@ public:
     mcp_can_filter = {};
   }
 
-  /** @brief  Install CAN bus driver */
-  bool install() override;
-  /** @brief  Uninstall CAN bus driver */
-  bool uninstall() override;
+  ~Mcp2515Driver() { deinitialize(); }
+
+  /** @brief  Initialize CAN bus driver */
+  bool initialize();
+  /** @brief  Deinitialize CAN bus driver */
+  bool deinitialize();
+
   /** @brief  Update list of subscribed frame id's */
   bool update_frame_ids(sc_can_frame_id_list_t id_list) override;
   /** @brief  Read a CAN frame */

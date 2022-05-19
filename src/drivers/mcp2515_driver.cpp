@@ -1,6 +1,6 @@
 #include "mcp2515_driver.h"
 
-bool Mcp2515Driver::install() {
+bool Mcp2515Driver::initialize() {
   if (mcp_handle || is_installed) return true;
 
   mcp_handle = new MCP_CAN(mcp_can_pin_cfg.cs_pin);
@@ -11,7 +11,7 @@ bool Mcp2515Driver::install() {
   return false;
 }
 
-bool Mcp2515Driver::uninstall() {
+bool Mcp2515Driver::deinitialize() {
   if (mcp_handle) {
     delete mcp_handle;
     mcp_handle = nullptr;
