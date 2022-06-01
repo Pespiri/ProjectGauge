@@ -18,4 +18,5 @@ __`Project:Gauge`__ is an Arduino based CAN bus project using an [ATmega328P](ht
 1. Go to the PlatformIO Home Screen and select `Open Project`
 1. Open a new terminal or git bash from the project folder and run the following commands:
     * `git submodule init`
+    * `git submodule sync`
     * `git submodule update`
