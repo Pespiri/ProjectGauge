@@ -2,8 +2,8 @@
 #define MCP2515_DRIVER_H
 
 #include <Aruino_CAN_BUS_MCP2515/mcp_can.h>
+#include <saab_can/cpp_utils/interfaces/can_handle_object.hpp>
 #include <saab_can/data/saab_frame.h>
-#include <saab_can/interfaces/can_handle_object.h>
 #include <stdint.h>
 
 class Mcp2515Driver : public SCCanHandleObject {

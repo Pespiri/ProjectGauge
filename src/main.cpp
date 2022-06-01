@@ -3,6 +3,7 @@
 #include "project_defs.h"
 
 #include <Arduino.h>
+#include <saab_can/cpp_utils/saab_can_cpp_utils.hpp>
 #include <saab_can/saab_can.h>
 #include <saab_can/services/can_reader_service.h>
 #include <stdint.h>
@@ -34,7 +35,7 @@ void setup() {
 
   Mcp2515Driver *can_handle = new Mcp2515Driver(CAN_PIN_CS, CAN_47K619BPS);
   can_handle->initialize();
-  sc_err_t err = saabcan::sc_assign_can_handle(can_handle);
+  sc_err_t err = sc_assign_can_handle_class_obj(can_handle);
   if (err != SC_OK) {
     char buffer[64];
     snprintf(buffer, sizeof(buffer), "ERROR   %s: %s failed to assign CAN handle [code %i]", MAIN_TAG, __func__, err);
@@ -45,7 +46,7 @@ void setup() {
   }
 
   sc_can_reader_subscription_t sub1 = {.id = "SUB_1", .frame_id = GAUGE_CAN_ID, .cb = handle_gauge_value_frame};
-  saabcan::sc_can_reader_subscribe(sub1);
+  sc_can_reader_subscribe(sub1);
 
   stepper_x27_driver::stepper_x27_cfg config = {};
   config.mode = AccelStepper::HALF4WIRE;
@@ -63,7 +64,7 @@ void setup() {
 }
 
 void loop() {
-  saabcan::sc_can_reader_advance();
+  sc_can_reader_advance();
   if (last_packet_received < (millis() - PACKET_TIMEOUT_MS)) {
     // packet timeout, return home
     stepper_x27_driver::stepper_x27_set_position(0);
