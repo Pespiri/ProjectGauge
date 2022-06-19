@@ -12,10 +12,8 @@ bool Mcp2515Driver::initialize() {
 }
 
 bool Mcp2515Driver::deinitialize() {
-  if (mcp_handle) {
-    delete mcp_handle;
-    mcp_handle = nullptr;
-  }
+  delete mcp_handle;
+  mcp_handle = nullptr;
 
   is_installed = false;
   return true;
