@@ -40,9 +40,7 @@ void setup() {
     char buffer[64];
     snprintf(buffer, sizeof(buffer), "ERROR   %s: %s failed to assign CAN handle [code %i]", MAIN_TAG, __func__, err);
     Serial.println(buffer);
-    if (can_handle) {
-      delete can_handle;
-    }
+    delete can_handle;
   }
 
   sc_can_reader_subscription_t sub1 = {.id = "SUB_1", .frame_id = GAUGE_CAN_ID, .cb = handle_gauge_value_frame};
