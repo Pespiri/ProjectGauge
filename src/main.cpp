@@ -5,7 +5,7 @@
 #include <Arduino.h>
 #include <saab_can/cpp_utils/saab_can_cpp_utils.hpp>
 #include <saab_can/saab_can.h>
-#include <saab_can/services/can_reader_service.h>
+#include <saab_can/utilities/can_reader_util.h>
 #include <stdint.h>
 #include <stdio.h>
 
