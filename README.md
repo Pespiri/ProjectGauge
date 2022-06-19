@@ -1,6 +1,7 @@
 # __Project:Gauge__
 
 [![format](https://github.com/Pespiri/ProjectGauge/actions/workflows/clang-format.yaml/badge.svg)](https://github.com/Pespiri/ProjectGauge/actions/workflows/clang-format.yaml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 __`Project:Gauge`__ is an Arduino based CAN bus project using an [ATmega328P](https://www.microchip.com/wwwproducts/ATmega328p) to drive an automotive gauge stepper motor.
 
@@ -10,7 +11,7 @@ __`Project:Gauge`__ is an Arduino based CAN bus project using an [ATmega328P](ht
 
   * Arduino Uno
   * MCP2515 CAN bus controller (the 16MHz version)
-  * x27.168 (Automotive Gauge Stepper Motor )
+  * x27.168 (Automotive Gauge Stepper Motor)
 
 ### __Getting started__
 
