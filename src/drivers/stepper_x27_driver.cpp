@@ -1,7 +1,6 @@
 #include "stepper_x27_driver.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 namespace stepper_x27_driver {
   typedef struct {
@@ -18,22 +17,15 @@ namespace stepper_x27_driver {
     if (!cfg.mode) return false;
     if (stepper_handle) return true;
 
-    memcpy(&stepper_cfg, &cfg, sizeof(stepper_x27_cfg));
+    stepper_cfg = cfg;
     stepper_range_cfg = {
-      .max_range = (!stepper_cfg.short_range ? stepper_cfg.full_range : stepper_cfg.short_range),
-      .multiplier = (uint8_t)(1 + (stepper_cfg.mode == AccelStepper::HALF3WIRE || stepper_cfg.mode == AccelStepper::HALF4WIRE)),
+      .max_range = (!cfg.short_range ? cfg.full_range : cfg.short_range),
+      .multiplier = (uint8_t)(1 + (cfg.mode == AccelStepper::HALF3WIRE || cfg.mode == AccelStepper::HALF4WIRE)),
     };
 
-    stepper_handle = new AccelStepper(
-      stepper_cfg.mode,
-      stepper_cfg.pin1,
-      stepper_cfg.pin2,
-      stepper_cfg.pin3,
-      stepper_cfg.pin4,
-      true);
-
-    stepper_handle->setSpeed(stepper_cfg.speed);
-    stepper_handle->setAcceleration(stepper_cfg.acceleration);
+    stepper_handle = new AccelStepper(cfg.mode, cfg.pin1, cfg.pin2, cfg.pin3, cfg.pin4, true);
+    stepper_handle->setSpeed(cfg.speed);
+    stepper_handle->setAcceleration(cfg.acceleration);
 
     stepper_x27_go_home();
     return true;
