@@ -8,6 +8,7 @@
 #include <saab_can/utilities/can_reader_util.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define MAIN_TAG          "MAIN"
 #define PACKET_TIMEOUT_MS 5000
@@ -43,7 +44,8 @@ void setup() {
     delete can_handle;
   }
 
-  sc_can_reader_subscription_t sub1 = {.id = "SUB_1", .frame_id = GAUGE_CAN_ID, .cb = handle_gauge_value_frame};
+  sc_can_reader_subscription_t sub1 = {.id = {}, .frame_id = GAUGE_CAN_ID, .cb = handle_gauge_value_frame};
+  snprintf(sub1.id, SC_CAN_RDR_SUB_ID_LENGTH, "SUB_1");
   sc_can_reader_subscribe(sub1);
 
   stepper_x27_driver::stepper_x27_cfg config = {};
