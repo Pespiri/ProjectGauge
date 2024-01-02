@@ -7,7 +7,7 @@
 #define STEPPER_X27_DRIVER_TAG "STEPPER_X27"
 
 namespace stepper_x27_driver {
-  typedef struct {
+  typedef struct STEPPER_X27_CFG_STRUCT {
     AccelStepper::MotorInterfaceType mode; // Stepper wire mode
 
     uint8_t pin1;                          // Pin 1
@@ -21,14 +21,14 @@ namespace stepper_x27_driver {
     uint32_t steps;                        // Stepper total steps
     uint32_t speed;                        // Stepper max speed
     uint32_t acceleration;                 // Stepper acceleration
-  } stepper_x27_cfg;
+  } stepper_x27_cfg_t;
 
   /**
    * @brief  Initialize stepper driver
    *
    * @param[in]   cfg   stepper configuration
    */
-  bool stepper_x27_init(stepper_x27_cfg cfg);
+  bool stepper_x27_init(stepper_x27_cfg_t cfg);
   /** @brief  Deinitialize stepper driver */
   bool stepper_x27_deinit();
 

@@ -48,7 +48,7 @@ void setup() {
   snprintf(sub1.id, SC_CAN_RDR_SUB_ID_LENGTH, "SUB_1");
   sc_can_reader_subscribe(sub1);
 
-  stepper_x27_driver::stepper_x27_cfg config = {};
+  stepper_x27_driver::stepper_x27_cfg_t config = {};
   config.mode = AccelStepper::HALF4WIRE;
   config.pin1 = GAUGE_PIN_1;
   config.pin2 = GAUGE_PIN_2;

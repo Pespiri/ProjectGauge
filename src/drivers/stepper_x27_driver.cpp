@@ -3,17 +3,17 @@
 #include <stdlib.h>
 
 namespace stepper_x27_driver {
-  typedef struct {
+  typedef struct STEPPER_X27_RANGE_CFG_STRUCT {
     uint32_t max_range;
     uint8_t multiplier;
   } stepper_x27_range_cfg_t;
 
   AccelStepper *stepper_handle;
 
-  stepper_x27_cfg stepper_cfg;
+  stepper_x27_cfg_t stepper_cfg;
   stepper_x27_range_cfg_t stepper_range_cfg;
 
-  bool stepper_x27_init(stepper_x27_cfg cfg) {
+  bool stepper_x27_init(stepper_x27_cfg_t cfg) {
     if (!cfg.mode) return false;
     if (stepper_handle) return true;
 
