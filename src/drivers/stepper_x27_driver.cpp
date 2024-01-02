@@ -36,7 +36,7 @@ namespace stepper_x27_driver {
 
     stepper_x27_go_home();
     stepper_handle->disableOutputs();
-    operator delete(stepper_handle);
+    delete stepper_handle;
     stepper_handle = nullptr;
 
     return true;
