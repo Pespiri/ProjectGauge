@@ -8,12 +8,12 @@
 
 class Mcp2515Driver : public SCCanHandleObject {
 private:
-  typedef struct {
+  typedef struct MCP_CAN_PIN_CFG_STRUCT {
     uint8_t cs_pin;
     uint8_t can_speed;
   } mcp_can_pin_cfg_t;
 
-  typedef struct {
+  typedef struct MCP_CAN_FILTER_STRUCT {
     unsigned long id_filter;
     unsigned long id_mask;
   } mcp_can_filter_t;
