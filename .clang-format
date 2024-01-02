@@ -17,9 +17,10 @@ NamespaceIndentation: All
 AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveBitFields: Consecutive
 AlignConsecutiveMacros: AcrossEmptyLines
-AlignTrailingComments: true
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AlignTrailingComments:
+  OverEmptyLines: 1
 
 # spacing
 BitFieldColonSpacing: Both
